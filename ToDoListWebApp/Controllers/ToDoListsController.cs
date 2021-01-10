@@ -28,8 +28,8 @@ namespace ToDoListWebApp.Controllers
         public async Task<IActionResult> Index()
         {
             //Get Lists belonging to current user
-            var user = _userManager.GetUserId(User);
-            return View(await _context.ToDoList.Where(t => t.Owner.Id == user).ToListAsync());
+            AppUser user = await _context.AppUser.Include(u => u.ToDoLists).FirstAsync(u => u.Id == _userManager.GetUserId(User));
+            return View(user.ToDoLists);
         }
 
         [Authorize("UserOwnsList")]
@@ -41,6 +41,7 @@ namespace ToDoListWebApp.Controllers
                 return NotFound();
             }
 
+            //Includes ListItems (tasks) to show on details
             var toDoList = await _context.ToDoList.Include(l => l.ListItems)
                 .FirstOrDefaultAsync(m => m.Id == toDoListId);
             if (toDoList == null)
@@ -163,6 +164,7 @@ namespace ToDoListWebApp.Controllers
             return _context.ToDoList.Any(e => e.Id == id);
         }
 
+        //Updates the IsChecked on a Task; used on DetailsView to update without editing
         public JsonResult UpdateStatus(int id, bool status)
         {
             ListItem listItem = _context.ListItem.Find(id);
