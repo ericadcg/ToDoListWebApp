@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,15 +13,19 @@ namespace ToDoListWebApp.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly UserManager<AppUser> _user;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> user)
         {
             _logger = logger;
+            _user = user;
         }
 
         public IActionResult Index()
         {
+
             return View();
+
         }
 
         public IActionResult Privacy()

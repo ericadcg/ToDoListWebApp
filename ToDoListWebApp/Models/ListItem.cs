@@ -21,6 +21,7 @@ namespace ToDoListWebApp.Models
 
         [DisplayFormat(DataFormatString = "{0:d MMM yyyy h:mm tt}")]
         [Display(Name = "Limit Date")]
+        [FutureDate(ErrorMessage = "Date should be in the future.")]
         public DateTime LimitDateTime { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:d MMM yyyy h:mm tt}")]
@@ -33,5 +34,13 @@ namespace ToDoListWebApp.Models
         public int ToDoListId { get; set; }
 
         public virtual ToDoList ToDoList { get; set; }
+    }
+
+    public class FutureDateAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            return value != null && (DateTime)value > DateTime.Now;
+        }
     }
 }

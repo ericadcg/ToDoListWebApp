@@ -5,5 +5,18 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>This is a simple web app where a user can create multiple To Do Lists and add Tasks to each list.</p>
-    <p>If you don't have an account, please create a new one by registering. If you do, please log in to see your To Do Lists or create a new one.</p>
+    <br />
+</div>
+<div class="text-center">
+@{
+    if (User.Identity.IsAuthenticated)
+    {
+    <a asp-area="" asp-controller="ToDoLists" asp-action="Index">Click here to go to your To Do Lists</a>
+
+    }
+    else
+    {
+        <p>If you don't have an account, please create a new one by registering. If you do, please log in to see your To Do Lists or create a new one.</p>
+    }
+}
 </div>

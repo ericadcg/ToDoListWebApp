@@ -59,10 +59,14 @@ namespace ToDoListWebApp.Controllers
                 return NotFound();
             }
 
+            //Creates new list item so that this item will have the correct ToDoListId
             ListItem newItem = new ListItem
             {
-                ToDoListId = toDoListId
-            };
+                ToDoListId = toDoListId,
+                //Sets default limit date time in one day
+                LimitDateTime = DateTime.Now.Date.AddHours(DateTime.Now.Hour).AddDays(1)
+               
+        };
             
             return View(newItem);
         }
@@ -169,7 +173,7 @@ namespace ToDoListWebApp.Controllers
             _context.ListItem.Remove(listItem);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "ToDoLists");
+            return RedirectToAction("Details", "ToDoLists", new { toDoListId = listItem.ToDoListId });
         }
 
         private bool ListItemExists(int id)

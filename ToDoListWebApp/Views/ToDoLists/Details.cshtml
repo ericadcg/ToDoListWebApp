@@ -4,7 +4,7 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>@Html.DisplayFor(model => model.Name) - List Details</h1>
+<h1>List Details - @Html.DisplayFor(model => model.Name)</h1>
 
 <div>
     <hr />
@@ -23,10 +23,14 @@
         </dd>
     </dl>
 </div>
+<div>
+    <a asp-action="Edit" asp-route-toDoListId="@Model.Id">Edit To Do List</a> |
+    <a asp-action="Index">Back to my To Do Lists</a>
+</div>
 
 <div>
+    <br />
     <h4>Your Tasks</h4>
-    <a asp-area="" asp-controller="ListItems" asp-action="Create" asp-route-toDoListId="@Model.Id">Create a new Task</a>
     <br>
     @{
         if (Model.ListItems == null || !Model.ListItems.Any())
@@ -84,12 +88,11 @@
                 </tbody>
             </table>
         }
+        <br />
+        <a asp-area="" asp-controller="ListItems" asp-action="Create" asp-route-toDoListId="@Model.Id">Create a new Task</a>
     }
 </div>
-<div>
-    <a asp-action="Edit" asp-route-toDoListId="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
 
 @section Scripts {
     <script type="text/javascript">
