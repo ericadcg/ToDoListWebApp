@@ -48,6 +48,14 @@ namespace ToDoListWebApp
             //Adds Handler 
             services.AddScoped<IAuthorizationHandler, UserOwnsListHandler>();
 
+            //Adds requirements to make sure only owner of the task can access it
+            services.AddAuthorization(options => {
+                options.AddPolicy("UserOwnsTask",
+                    policy => policy.Requirements.Add(new UserOwnsTaskRequirement()));
+            });
+            //Adds Handler 
+            services.AddScoped<IAuthorizationHandler, UserOwnsTaskHandler>();
+
             services.AddMvc().AddRazorPagesOptions(options =>
             {
                 options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");

@@ -90,7 +90,7 @@ namespace ToDoListWebApp.Controllers
         }
 
 
-        
+        [Authorize("UserOwnsTask")]
         // GET: ListItems/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -145,7 +145,7 @@ namespace ToDoListWebApp.Controllers
             return RedirectToAction("Details", "ToDoLists", new { toDoListId = listItem.ToDoListId });
         }
 
-
+        [Authorize("UserOwnsTask")]
         // GET: ListItems/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
