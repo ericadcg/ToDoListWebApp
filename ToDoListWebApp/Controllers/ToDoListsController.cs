@@ -163,6 +163,18 @@ namespace ToDoListWebApp.Controllers
             return _context.ToDoList.Any(e => e.Id == id);
         }
 
+        public JsonResult UpdateStatus(int id, bool status)
+        {
+            ListItem listItem = _context.ListItem.Find(id);
+            if(listItem != null)
+            {
+                listItem.IsChecked = status;
+                listItem.UpdateDateTime = DateTime.Now;
+                _context.Entry(listItem).State = EntityState.Modified;
+                _context.SaveChanges();
+            }
+            return Json(true);
 
+        }
     }
 }

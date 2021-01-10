@@ -21,6 +21,7 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.CreateDateTime)
         </dd>
+    </dl>
 </div>
 
 <div>
@@ -38,6 +39,9 @@
                 <thead>
                     <tr>
                         <th>
+
+                        </th>
+                        <th>
                             @Html.DisplayNameFor(model => model.ListItems.FirstOrDefault().Name)
                         </th>
                         <th>
@@ -49,38 +53,33 @@
                         <th>
                             @Html.DisplayNameFor(model => model.ListItems.FirstOrDefault().LimitDateTime)
                         </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ListItems.FirstOrDefault().IsChecked)
-                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model.ListItems)
                     {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelitem => item.Name)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelitem => item.Description)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelitem => item.UpdateDateTime)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelitem => item.LimitDateTime)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelitem => item.IsChecked)
-                        </td>
-                        <td>
+                        <tr>
+                            <td>
+                                @Html.CheckBoxFor(modelitem => item.IsChecked, new { @class = "toggle-checkbox", data_id = item.Id })
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelitem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelitem => item.Description)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelitem => item.UpdateDateTime)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelitem => item.LimitDateTime)
+                            </td>
+                            <td>
+                                <a asp-area="" asp-controller="ListItems" asp-action="Edit" asp-route-Id="@item.Id">Edit</a> |
+                                <a asp-area="" asp-controller="ListItems" asp-action="Delete" asp-route-Id="@item.Id">Delete</a>
+                            </td>
 
-                            <a asp-area="" asp-controller="ListItems" asp-action="Edit" asp-route-Id="@item.Id">Edit</a> | 
-                            <a asp-area="" asp-controller="ListItems" asp-action="Delete" asp-route-Id="@item.Id">Delete</a>
-
-                        </td>
-
-                    </tr>
+                        </tr>
                     }
                 </tbody>
             </table>
@@ -91,3 +90,16 @@
     <a asp-action="Edit" asp-route-toDoListId="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section Scripts {
+    <script type="text/javascript">
+    var url = '@Url.Action("UpdateStatus")';
+    $('.toggle-checkbox').click(function () {
+        var isChecked = $(this).is(':checked'); //CheckBox checked - True or false
+        var id = $(this).data('id'); //Get the id of that specific checked row
+
+        $.post(url, { id: id, status: isChecked }, function (response) {
+        })
+    });
+    </script>
+}

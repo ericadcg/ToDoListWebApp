@@ -27,7 +27,7 @@ namespace ToDoListWebApp.Models
         [Display(Name = "Update Date")]
         public DateTime UpdateDateTime { get; set; }
 
-        [Display(Name = "Is Checked?")]
+        [Display(Name = "Is Done?")]
         public bool IsChecked { get; set; }
 
         public int ToDoListId { get; set; }
