@@ -4,18 +4,11 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>@Html.DisplayFor(model => model.Name) - List Details</h1>
 
 <div>
-    <h4>ToDoList</h4>
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Description)
         </dt>
@@ -31,15 +24,13 @@
 </div>
 
 <div>
+    <h4>Your Tasks</h4>
+    <a asp-area="" asp-controller="ListItems" asp-action="Create" asp-route-toDoListId="@Model.Id">Create a new Task</a>
+    <br>
     @{
-        if (Model.ListItems == null)
+        if (Model.ListItems == null || !Model.ListItems.Any())
         {
-            <h4>You don't have any tasks in this To Do List.</h4>
-
-            <a asp-area="" asp-controller="ListItems" asp-action="Create" asp-route-id="@Model.Id">Create a new Task</a>
-
-            <a asp-area="" asp-controller="ListItems" asp-action="Index">Index</a>
-
+            <h3>You don't have any tasks in this To Do List.</h3>
         }
         else
         {
@@ -53,6 +44,9 @@
                             @Html.DisplayNameFor(model => model.ListItems.FirstOrDefault().Description)
                         </th>
                         <th>
+                            @Html.DisplayNameFor(model => model.ListItems.FirstOrDefault().UpdateDateTime)
+                        </th>
+                        <th>
                             @Html.DisplayNameFor(model => model.ListItems.FirstOrDefault().LimitDateTime)
                         </th>
                         <th>
@@ -63,21 +57,30 @@
                 <tbody>
                     @foreach (var item in Model.ListItems)
                     {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelitem => item.Name)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelitem => item.Description)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelitem => item.LimitDateTime)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelitem => item.IsChecked)
-                            </td>
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelitem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelitem => item.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelitem => item.UpdateDateTime)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelitem => item.LimitDateTime)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelitem => item.IsChecked)
+                        </td>
+                        <td>
 
-                        </tr>
+                            <a asp-area="" asp-controller="ListItems" asp-action="Edit" asp-route-Id="@item.Id">Edit</a> | 
+                            <a asp-area="" asp-controller="ListItems" asp-action="Delete" asp-route-Id="@item.Id">Delete</a>
+
+                        </td>
+
+                    </tr>
                     }
                 </tbody>
             </table>
@@ -85,6 +88,6 @@
     }
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Edit" asp-route-toDoListId="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

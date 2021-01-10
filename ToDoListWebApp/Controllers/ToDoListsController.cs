@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,31 +12,37 @@ using ToDoListWebApp.Models;
 
 namespace ToDoListWebApp.Controllers
 {
+    [Authorize]
     public class ToDoListsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public ToDoListsController(ApplicationDbContext context)
+        public ToDoListsController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: ToDoLists
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ToDoList.ToListAsync());
+            //Get Lists belonging to current user
+            var user = _userManager.GetUserId(User);
+            return View(await _context.ToDoList.Where(t => t.Owner.Id == user).ToListAsync());
         }
 
+        [Authorize("UserOwnsList")]
         // GET: ToDoLists/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? toDoListId)
         {
-            if (id == null)
+            if (toDoListId == null)
             {
                 return NotFound();
             }
 
-            var toDoList = await _context.ToDoList
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var toDoList = await _context.ToDoList.Include(l => l.ListItems)
+                .FirstOrDefaultAsync(m => m.Id == toDoListId);
             if (toDoList == null)
             {
                 return NotFound();
@@ -59,6 +67,7 @@ namespace ToDoListWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
+                toDoList.Owner= await _userManager.GetUserAsync(User);
                 toDoList.CreateDateTime = DateTime.Now;
                 _context.Add(toDoList);
                 await _context.SaveChangesAsync();
@@ -67,15 +76,16 @@ namespace ToDoListWebApp.Controllers
             return View(toDoList);
         }
 
+        [Authorize("UserOwnsList")]
         // GET: ToDoLists/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? toDoListId)
         {
-            if (id == null)
+            if (toDoListId == null)
             {
                 return NotFound();
             }
 
-            var toDoList = await _context.ToDoList.FindAsync(id);
+            var toDoList = await _context.ToDoList.FindAsync(toDoListId);
             if (toDoList == null)
             {
                 return NotFound();
@@ -88,9 +98,9 @@ namespace ToDoListWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,CreateDateTime")] ToDoList toDoList)
+        public async Task<IActionResult> Edit(int toDoListId, [Bind("Id,Name,Description,CreateDateTime")] ToDoList toDoList)
         {
-            if (id != toDoList.Id)
+            if (toDoListId != toDoList.Id)
             {
                 return NotFound();
             }
@@ -118,16 +128,17 @@ namespace ToDoListWebApp.Controllers
             return View(toDoList);
         }
 
+        [Authorize("UserOwnsList")]
         // GET: ToDoLists/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? toDoListId)
         {
-            if (id == null)
+            if (toDoListId == null)
             {
                 return NotFound();
             }
 
             var toDoList = await _context.ToDoList
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == toDoListId);
             if (toDoList == null)
             {
                 return NotFound();
@@ -139,9 +150,9 @@ namespace ToDoListWebApp.Controllers
         // POST: ToDoLists/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int toDoListId)
         {
-            var toDoList = await _context.ToDoList.FindAsync(id);
+            var toDoList = await _context.ToDoList.FindAsync(toDoListId);
             _context.ToDoList.Remove(toDoList);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

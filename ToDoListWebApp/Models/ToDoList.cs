@@ -13,6 +13,7 @@ namespace ToDoListWebApp.Models
         public string Name { get; set; }
         public string Description { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:d MMM yyyy h:mm tt}")]
         [Display(Name = "Creation Date")]
         public DateTime CreateDateTime { get; set; }
 

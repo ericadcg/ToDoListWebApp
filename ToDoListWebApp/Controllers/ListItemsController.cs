@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using ToDoListWebApp.Models;
 
 namespace ToDoListWebApp.Controllers
 {
+    [Authorize]
     public class ListItemsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,7 +24,7 @@ namespace ToDoListWebApp.Controllers
         // GET: ListItems
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ListItem.ToListAsync());
+           return View(await _context.ListItem.ToListAsync());
         }
 
         // GET: ListItems/Details/5
@@ -43,15 +45,26 @@ namespace ToDoListWebApp.Controllers
             return View(listItem);
         }
 
+        [Authorize("UserOwnsList")]
         // GET: ListItems/Create
-        public IActionResult Create(int ToDoListId)
+        public IActionResult Create(int toDoListId)
         {
-            if (ToDoListId == 0)
+            if (toDoListId == 0 )
             {
                 return NotFound();
             }
+
+            if (_context.ToDoList.Find(toDoListId) == null)
+            {
+                return NotFound();
+            }
+
+            ListItem newItem = new ListItem
+            {
+                ToDoListId = toDoListId
+            };
             
-            return View(ToDoListId);
+            return View(newItem);
         }
 
         // POST: ListItems/Create
@@ -59,24 +72,21 @@ namespace ToDoListWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int ToDoListId, [Bind("Id,Name,Description,LimitDateTime,UpdateDateTime,IsChecked")] ListItem listItem)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,LimitDateTime,UpdateDateTime,IsChecked, ToDoListId")] ListItem listItem)
         {
             if (ModelState.IsValid)
             {
-                listItem.ToDoList = _context.ToDoList.Find(ToDoListId);
-                if(listItem.ToDoList== null)
-                {
-                    return NotFound();
-                }
-
                 listItem.CreateDateTime = DateTime.Now;
+                listItem.UpdateDateTime = DateTime.Now;
                 _context.Add(listItem);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "ToDoLists", new { toDoListId = listItem.ToDoListId });
             }
             return View(listItem);
         }
 
+
+        
         // GET: ListItems/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -98,7 +108,7 @@ namespace ToDoListWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,CreateDateTime,LimitDateTime,UpdateDateTime,IsChecked")] ListItem listItem)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,CreateDateTime,LimitDateTime,UpdateDateTime,IsChecked, ToDoListId")] ListItem listItem)
         {
             if (id != listItem.Id)
             {
@@ -109,6 +119,7 @@ namespace ToDoListWebApp.Controllers
             {
                 try
                 {
+                    listItem.UpdateDateTime = DateTime.Now;
                     _context.Update(listItem);
                     await _context.SaveChangesAsync();
                 }
@@ -123,10 +134,13 @@ namespace ToDoListWebApp.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "ToDoLists", new { toDoListId = listItem.ToDoListId });
+
             }
-            return View(listItem);
+
+            return RedirectToAction("Details", "ToDoLists", new { toDoListId = listItem.ToDoListId });
         }
+
 
         // GET: ListItems/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -154,7 +168,8 @@ namespace ToDoListWebApp.Controllers
             var listItem = await _context.ListItem.FindAsync(id);
             _context.ListItem.Remove(listItem);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return RedirectToAction("Index", "ToDoLists");
         }
 
         private bool ListItemExists(int id)

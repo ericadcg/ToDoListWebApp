@@ -23,24 +23,17 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CreateDateTime" class="control-label"></label>
-                <input asp-for="CreateDateTime" class="form-control" />
-                <span asp-validation-for="CreateDateTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="LimitDateTime" class="control-label"></label>
                 <input asp-for="LimitDateTime" class="form-control" />
                 <span asp-validation-for="LimitDateTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdateDateTime" class="control-label"></label>
-                <input asp-for="UpdateDateTime" class="form-control" />
-                <span asp-validation-for="UpdateDateTime" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="IsChecked" /> @Html.DisplayNameFor(model => model.IsChecked)
                 </label>
+            </div>
+            <div>
+                <input type="hidden" asp-for="ToDoListId" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -50,7 +43,8 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+
+    <a asp-area="" asp-controller="ToDoLists" asp-action="Details" asp-route-toDoListId="@Model.ToDoListId">Back to List</a>
 </div>
 
 @section Scripts {

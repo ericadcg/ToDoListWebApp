@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ToDoListWebApp.Areas.Identity.Policies;
 using ToDoListWebApp.Data;
 
 namespace ToDoListWebApp
@@ -33,9 +35,18 @@ namespace ToDoListWebApp
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            //Adds Identity
+            services.AddIdentity<Models.AppUser, IdentityRole>(options => options.User.RequireUniqueEmail = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            //Adds requirements to make sure only owner of the list can access it
+            services.AddAuthorization(options => {
+                options.AddPolicy("UserOwnsList",
+                    policy => policy.Requirements.Add(new UserOwnsListRequirement()));
+            });
+            //Adds Handler 
+            services.AddScoped<IAuthorizationHandler, UserOwnsListHandler>();
 
             services.AddMvc().AddRazorPagesOptions(options =>
             {
@@ -52,6 +63,7 @@ namespace ToDoListWebApp
 
             services.AddControllersWithViews();
             services.AddSingleton<IEmailSender, EmailSender>();
+
 
         }
 
